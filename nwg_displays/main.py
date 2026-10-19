@@ -797,6 +797,17 @@ def on_toggle_button(btn):
     GLib.timeout_add(1000, create_display_buttons)
 
 
+def select_focused_display():
+    """Select the currently focused display, falling back to the first one,
+    and update the form to show its settings."""
+    if not display_buttons:
+        return None
+    btn = next((b for b in display_buttons if b.focused), display_buttons[0])
+    btn.select()
+    update_form_from_widget(btn)
+    return btn
+
+
 def create_display_buttons():
     global display_buttons, outputs
     for item in display_buttons:
@@ -849,9 +860,7 @@ def create_display_buttons():
             round(item["y"] * config["view-scale"]),
         )
 
-    if display_buttons:
-        display_buttons[0].select()
-        update_form_from_widget(display_buttons[0])
+    select_focused_display()
 
 
 class Indicator(Gtk.Window):
@@ -1867,9 +1876,7 @@ def main():
     profile_manager.set_fixed(fixed)
     profile_manager.set_update_callback(update_form_from_widget)
 
-    if display_buttons:
-        update_form_from_widget(display_buttons[0])
-        display_buttons[0].select()
+    select_focused_display()
 
     screen = Gdk.Screen.get_default()
     provider = Gtk.CssProvider()
